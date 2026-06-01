@@ -2,574 +2,549 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<title>تطبيق الموزع — Kaalix Agadir</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<title>تطبيق الموزع — Kaalix</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Cairo',sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh;direction:rtl}
-  input{font-family:'Cairo',sans-serif}
-  button{font-family:'Cairo',sans-serif;cursor:pointer}
-  ::-webkit-scrollbar{width:4px}
-  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
-  @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .fade-in{animation:fadeIn 0.4s ease}
-  .shake{animation:shake 0.5s ease}
-  .pulse{animation:pulse 1.5s infinite}
-  .screen{display:none;min-height:100vh}
-  .screen.active{display:block}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cairo',sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh;direction:rtl}
+button,input{font-family:'Cairo',sans-serif}
+button{cursor:pointer;border:none;outline:none}
+input{outline:none}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:4px}
 
-  /* LOGIN */
-  #loginScreen{background:linear-gradient(135deg,#052e16 0%,#064e3b 50%,#052e16 100%);display:flex;align-items:center;justify-content:center;padding:20px}
-  #loginScreen.active{display:flex}
-  .login-card{background:rgba(255,255,255,0.06);backdrop-filter:blur(20px);border:1px solid rgba(34,197,94,0.25);border-radius:20px;padding:40px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(22,163,74,0.1)}
-  .login-logo{text-align:center;font-size:52px;margin-bottom:12px}
-  .login-title{text-align:center;font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
-  .login-sub{text-align:center;color:#6ee7b7;font-size:13px;margin-bottom:32px}
-  .form-label{color:#a7f3d0;font-size:13px;display:block;margin-bottom:8px}
-  .form-input{width:100%;padding:12px 16px;background:rgba(255,255,255,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;color:#fff;font-size:14px;transition:all 0.2s;outline:none}
-  .form-input:focus{border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,0.2)}
-  .form-group{margin-bottom:20px}
-  .btn-primary{width:100%;padding:14px;background:#16a34a;border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:700;transition:all 0.2s}
-  .btn-primary:hover{background:#15803d;transform:translateY(-1px)}
-  .btn-primary:active{transform:translateY(0)}
-  .error-box{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;margin-bottom:16px;color:#fca5a5;font-size:13px;text-align:center}
-  .login-hint{margin-top:20px;text-align:center;padding:12px;background:rgba(22,163,74,0.06);border-radius:10px;border:1px solid rgba(22,163,74,0.15);color:#4ade80;font-size:12px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-8px)}50%{transform:translateX(8px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  /* HEADER */
-  .app-header{background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #e2e8f0;box-shadow:0 1px 6px rgba(0,0,0,0.06);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
-  .header-name{color:#1e293b;font-weight:700;font-size:15px}
-  .header-date{color:#64748b;font-size:11px}
-  .header-clock{color:#16a34a;font-weight:700;font-size:17px;direction:ltr}
-  .btn-logout{background:#fee2e2;border:1px solid rgba(239,68,68,0.2);color:#ef4444;border-radius:8px;padding:6px 12px;font-size:12px}
+/* ── LOADING ── */
+#loading{position:fixed;inset:0;background:#f1f5f9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999}
+.spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:#16a34a;border-radius:50%;animation:spin 0.7s linear infinite}
 
-  /* STATS BAR */
-  .stats-bar{padding:14px 16px 0;display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;background:#f1f5f9}
-  .stat-card{background:#fff;border-radius:12px;padding:10px 14px;min-width:90px;flex:0 0 auto;animation:fadeIn 0.4s ease both;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
-  .stat-val{font-weight:700;font-size:18px}
-  .stat-lbl{color:#94a3b8;font-size:10px;margin-top:2px}
+/* ── LOGIN ── */
+#login{display:none;min-height:100vh;background:linear-gradient(160deg,#052e16,#064e3b,#065f46);align-items:center;justify-content:center;padding:24px}
+#login.show{display:flex}
+.login-box{background:#fff;border-radius:20px;padding:36px 28px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,0.25)}
+.inp{width:100%;padding:12px 14px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;color:#1e293b;font-size:14px;transition:border 0.2s}
+.inp:focus{border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,0.15)}
+.btn-main{width:100%;padding:13px;background:#16a34a;border-radius:10px;color:#fff;font-size:15px;font-weight:700;transition:all 0.2s}
+.btn-main:active{background:#15803d;transform:scale(0.98)}
+.err{background:#fef2f2;border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px;color:#ef4444;font-size:13px;text-align:center;display:none}
 
-  /* TABS */
-  .tabs{padding:12px 16px 8px;display:flex;gap:8px;background:#f1f5f9}
-  .tab-btn{flex:1;padding:10px 6px;border:none;border-radius:10px;font-size:13px;font-weight:600;transition:all 0.2s}
-  .tab-btn.active{background:#16a34a;color:#fff}
-  .tab-btn.inactive{background:#e2e8f0;color:#64748b}
+/* ── APP ── */
+#app{display:none;min-height:100vh;flex-direction:column}
+#app.show{display:flex}
 
-  /* CONTENT */
-  .content{padding:0 16px 40px;background:#f1f5f9;min-height:100vh}
-  .section{animation:fadeIn 0.3s ease}
+/* HEADER */
+.hdr{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+.hdr-name{font-weight:700;font-size:15px;color:#1e293b}
+.hdr-date{font-size:11px;color:#94a3b8;margin-top:1px}
+.hdr-clock{font-weight:700;font-size:16px;color:#16a34a;direction:ltr}
+.btn-out{background:#fee2e2;border:1px solid #fecaca;color:#ef4444;border-radius:8px;padding:5px 10px;font-size:12px}
+.late-dot{background:#ef4444;color:#fff;border-radius:50%;width:20px;height:20px;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;animation:pulse 1s infinite}
 
-  /* POINTAGE */
-  .pointage-box{border-radius:14px;padding:20px;text-align:center;margin-bottom:16px;margin-top:12px}
-  .pointage-box.pending{background:#f0fdf4;border:1px solid rgba(22,163,74,0.3)}
-  .pointage-box.done{background:#f0fdf4;border:1px solid rgba(22,163,74,0.2);display:flex;justify-content:space-between;align-items:center;text-align:right}
+/* STATS */
+.stats{padding:12px 14px 0;display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.stat{background:#fff;border-radius:12px;padding:10px 12px;min-width:82px;flex:0 0 auto;box-shadow:0 1px 4px rgba(0,0,0,0.06);text-align:center}
+.stat-v{font-weight:700;font-size:17px}
+.stat-l{color:#94a3b8;font-size:9px;margin-top:2px}
 
-  /* ALERT */
-  .alert-box{background:#fef2f2;border:1px solid rgba(239,68,68,0.3);border-radius:12px;padding:14px;margin-bottom:14px}
-  .alert-title{color:#ef4444;font-weight:700;font-size:14px;margin-bottom:4px}
-  .alert-text{color:#f87171;font-size:12px}
+/* TABS */
+.tabs{padding:10px 14px 6px;display:flex;gap:8px;background:#f1f5f9}
+.tab{flex:1;padding:9px 6px;border-radius:10px;font-size:13px;font-weight:600;transition:all 0.2s;border:none}
+.tab.on{background:#16a34a;color:#fff}
+.tab.off{background:#e2e8f0;color:#64748b}
 
-  /* DAILY STATS */
-  .daily-stats{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
-  .daily-stats h3{font-weight:700;font-size:14px;margin-bottom:14px;color:#1e293b}
-  .stat-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9}
-  .stat-row:last-child{border-bottom:none}
-  .stat-row-lbl{color:#64748b;font-size:13px}
-  .stat-row-val{font-weight:700;font-size:14px}
+/* CONTENT */
+.content{padding:0 14px 80px;flex:1}
+.section{animation:fadeUp 0.3s ease}
 
-  /* ORDER CARD */
-  .order-card{border-radius:14px;padding:18px;margin-bottom:14px;transition:all 0.3s}
-  .order-card.normal{background:#fff;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
-  .order-card.warning{background:#fffbeb;border:1px solid rgba(212,160,23,0.4)}
-  .order-card.late{background:#fef2f2;border:1px solid rgba(239,68,68,0.4)}
-  .order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-  .order-id{color:#d4a017;font-weight:700;font-size:17px}
-  .order-profit{color:#22c55e;font-weight:700;font-size:14px}
-  .badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
-  .badge-complete{background:rgba(139,92,246,0.2);color:#a78bfa}
-  .badge-late{background:rgba(239,68,68,0.2);color:#f87171}
-  .badge-warn{background:rgba(212,160,23,0.2);color:#d4a017}
+/* POINTAGE */
+.ptg-pending{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:14px;padding:20px;text-align:center;margin:12px 0}
+.ptg-done{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin:12px 0}
 
-  /* TIMER BAR */
-  .timer-bar{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
-  .timer-lbl{color:#64748b;font-size:11px}
-  .timer-val{font-weight:700;font-size:15px;direction:ltr;color:#1e293b}
+/* ALERT */
+.alert-late{background:#fef2f2;border:1.5px solid #fecaca;border-radius:12px;padding:13px;margin-bottom:12px;animation:pulse 1.5s infinite}
 
-  /* STAGES */
-  .stages{display:flex;gap:6px;margin-bottom:10px}
-  .stage-item{flex:1;text-align:center;padding:7px 4px;border-radius:10px;border:1px solid;transition:all 0.2s;cursor:default}
-  .stage-item.clickable{cursor:pointer}
-  .stage-item.clickable:hover{filter:brightness(1.2)}
-  .stage-icon{font-size:16px}
-  .stage-label{font-size:9px;margin-top:3px;font-weight:600}
-  .stage-time{font-size:8px;margin-top:2px;color:#6b7280}
+/* DAILY CARD */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.card-title{font-weight:700;font-size:14px;color:#1e293b;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f1f5f9}
+.row:last-child{border:none}
+.row-l{color:#64748b;font-size:13px}
+.row-v{font-weight:700;font-size:13px}
 
-  /* TOTAL TIME */
-  .total-time{background:rgba(139,92,246,0.08);border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between}
-  .total-time-lbl{color:#a78bfa;font-size:12px}
-  .total-time-val{color:#c4b5fd;font-weight:700;direction:ltr}
+/* ORDER CARD */
+.o-card{border-radius:14px;padding:16px;margin-bottom:12px;transition:all 0.2s}
+.o-norm{background:#fff;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.o-warn{background:#fffbeb;border:1.5px solid #fde68a}
+.o-late{background:#fef2f2;border:1.5px solid #fecaca}
+.o-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.o-id{color:#d97706;font-weight:800;font-size:17px}
+.badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.b-done{background:#ede9fe;color:#7c3aed}
+.b-late{background:#fee2e2;color:#ef4444;animation:pulse 1.5s infinite}
+.b-warn{background:#fef3c7;color:#d97706}
+.o-profit{color:#16a34a;font-weight:700;font-size:13px}
 
-  /* LOADING */
-  #loadingScreen{background:#f1f5f9;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
-  #loadingScreen.active{display:flex}
-  .spinner{width:40px;height:40px;border:3px solid rgba(22,163,74,0.2);border-top-color:#16a34a;border-radius:50%;animation:spin 0.8s linear infinite}
+/* TIMER */
+.timer{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.timer-l{color:#64748b;font-size:11px}
+.timer-v{font-weight:700;font-size:14px;direction:ltr}
 
-  /* LATE BADGE PULSE */
-  .late-badge{background:#ef4444;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;animation:pulse 1s infinite}
+/* STAGES */
+.stages{display:flex;gap:5px;margin-bottom:8px}
+.stg{flex:1;text-align:center;padding:7px 3px;border-radius:10px;border:1.5px solid;transition:all 0.15s}
+.stg.clickable:active{transform:scale(0.95)}
+.stg-ico{font-size:15px}
+.stg-lbl{font-size:9px;margin-top:3px;font-weight:600;line-height:1.2}
+.stg-time{font-size:8px;margin-top:2px;color:#94a3b8}
+
+/* TOTAL */
+.total{background:#ede9fe;border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between}
+.total-l{color:#7c3aed;font-size:12px}
+.total-v{color:#6d28d9;font-weight:700;direction:ltr;font-size:12px}
+
+/* ADD BTN */
+.add-btn{width:100%;padding:14px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:12px;color:#fff;font-size:15px;font-weight:700;margin-top:4px;box-shadow:0 4px 12px rgba(22,163,74,0.3)}
+.add-btn:active{transform:scale(0.98)}
+.add-btn-sm{background:#16a34a;border-radius:10px;color:#fff;padding:7px 14px;font-size:12px;font-weight:600}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:#94a3b8}
+.empty-ico{font-size:48px;margin-bottom:14px}
 </style>
 </head>
 <body>
 
 <!-- Loading -->
-<div id="loadingScreen" class="screen active">
+<div id="loading">
   <div class="spinner"></div>
-  <p style="color:#16a34a;font-size:14px">جاري التحميل...</p>
+  <p style="color:#16a34a;font-size:13px">جاري التحميل...</p>
 </div>
 
 <!-- Login -->
-<div id="loginScreen" class="screen">
-  <div class="login-card fade-in" id="loginCard">
-    <div class="login-logo">🛵</div>
-    <div class="login-title">نظام الموزعين</div>
-    <div class="login-sub">Kaalix Agadir — تطبيق التوصيل</div>
-    <div class="form-group">
-      <label class="form-label">البريد الإلكتروني</label>
-      <input class="form-input" type="email" id="loginEmail" placeholder="example@agadir.ma"/>
+<div id="login">
+  <div class="login-box" id="loginBox">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:48px;margin-bottom:10px">🛵</div>
+      <div style="font-size:21px;font-weight:800;color:#1e293b">نظام الموزعين</div>
+      <div style="color:#16a34a;font-size:12px;margin-top:4px">Kaalix Agadir</div>
     </div>
-    <div class="form-group">
-      <label class="form-label">كلمة المرور (6 أرقام)</label>
-      <input class="form-input" type="password" id="loginPass" maxlength="6" placeholder="••••••" style="letter-spacing:6px;font-size:18px"/>
+    <div style="margin-bottom:14px">
+      <label style="color:#374151;font-size:13px;display:block;margin-bottom:6px">البريد الإلكتروني</label>
+      <input class="inp" type="email" id="fEmail" placeholder="example@agadir.ma" autocomplete="email"/>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+    <div style="margin-bottom:10px">
+      <label style="color:#374151;font-size:13px;display:block;margin-bottom:6px">كلمة المرور</label>
+      <input class="inp" type="password" id="fPass" placeholder="••••••" maxlength="6" style="letter-spacing:5px;font-size:18px" autocomplete="current-password"/>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:18px">
       <input type="checkbox" id="rememberMe" style="width:16px;height:16px;accent-color:#16a34a;cursor:pointer"/>
-      <label for="rememberMe" style="color:#6b7280;font-size:13px;cursor:pointer">تذكرني — حفظ بيانات الدخول</label>
+      <label for="rememberMe" style="color:#64748b;font-size:13px;cursor:pointer">تذكرني</label>
     </div>
-    <div class="error-box" id="loginError" style="display:none"></div>
-    <button class="btn-primary" onclick="doLogin()">تسجيل الدخول</button>
-    <div class="login-hint">🔑 حسابك يُنشأ من طرف المدير</div>
+    <div class="err" id="loginErr"></div>
+    <button class="btn-main" id="loginBtn">تسجيل الدخول</button>
+    <div style="margin-top:16px;text-align:center;background:#f0fdf4;border-radius:8px;padding:10px;border:1px solid #bbf7d0;color:#16a34a;font-size:11px">
+      🔑 حسابك يُنشأ من طرف المدير
+    </div>
   </div>
 </div>
 
-<!-- Main App -->
-<div id="appScreen" class="screen">
-  <!-- Header -->
-  <div class="app-header">
+<!-- App -->
+<div id="app">
+  <div class="hdr">
     <div>
-      <div class="header-name" id="headerName">—</div>
-      <div class="header-date" id="headerDate">—</div>
+      <div class="hdr-name" id="hName">—</div>
+      <div class="hdr-date" id="hDate">—</div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <div class="header-clock" id="headerClock">—</div>
-      <div class="late-badge" id="lateBadge" style="display:none">0</div>
-      <button id="installBtn" style="display:none;background:#16a34a;border:none;color:#fff;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600" onclick="doInstall()">📲 حفظ</button>
-      <button class="btn-logout" onclick="doLogout()">خروج</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="hdr-clock" id="hClock">—</div>
+      <div class="late-dot" id="lateDot" style="display:none">0</div>
+      <button id="installBtn" style="display:none;background:#16a34a;color:#fff;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600" onclick="doInstall()">📲</button>
+      <button class="btn-out" id="logoutBtn">خروج</button>
     </div>
   </div>
 
-  <!-- Stats -->
-  <div class="stats-bar" id="statsBar"></div>
+  <div class="stats" id="statsBar"></div>
 
-  <!-- Tabs -->
   <div class="tabs">
-    <button class="tab-btn active" id="tabHome" onclick="showTab('home')">🏠 الرئيسية</button>
-    <button class="tab-btn inactive" id="tabOrders" onclick="showTab('orders')">📦 الطلبيات</button>
+    <button class="tab on" id="tabHome" onclick="goTab('home')">🏠 الرئيسية</button>
+    <button class="tab off" id="tabOrders" onclick="goTab('orders')">📦 الطلبيات</button>
   </div>
 
-  <!-- Content -->
   <div class="content">
-    <div id="homeSection" class="section"></div>
-    <div id="ordersSection" class="section" style="display:none"></div>
+    <div id="secHome" class="section"></div>
+    <div id="secOrders" class="section" style="display:none"></div>
   </div>
 </div>
 
-<!-- Firebase -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, get, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// ── Firebase Config ──────────────────────────────────────────────────────
-const firebaseConfig = {
+// ── Config ────────────────────────────────────────────────────────────────
+const FB = {
   apiKey: "AIzaSyCgFA2A9RzBEZooaXRg6WEqcgg0ooo19cg",
   authDomain: "livraison-kaalix-agadir.firebaseapp.com",
   databaseURL: "https://livraison-kaalix-agadir-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "livraison-kaalix-agadir",
   storageBucket: "livraison-kaalix-agadir.firebasestorage.app",
   messagingSenderId: "185085591440",
-  appId: "1:185085591440:web:1a353e8caf0e1b418c3d15",
-  measurementId: "G-Q8RMZXD716"
+  appId: "1:185085591440:web:1a353e8caf0e1b418c3d15"
 };
+const db = getDatabase(initializeApp(FB));
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// ── Constants ────────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────
 const MAX_MIN = 45;
-const PROFIT = 15;
-const STAGES = [
-  { key: "accepted",  label: "قبول الطلبية",    icon: "✅", color: "#22c55e" },
-  { key: "preparing", label: "الأداء / التحضير", icon: "📦", color: "#d4a017" },
-  { key: "delivering",label: "بداية التوصيل",   icon: "🛵", color: "#3b82f6" },
-  { key: "delivered", label: "نهاية التوصيل",   icon: "🏁", color: "#8b5cf6" },
+const PROFIT  = 15;
+const STAGES  = [
+  { key:"accepted",   label:"قبول",      icon:"✅", color:"#22c55e" },
+  { key:"preparing",  label:"تحضير",     icon:"📦", color:"#d97706" },
+  { key:"delivering", label:"توصيل",     icon:"🛵", color:"#3b82f6" },
+  { key:"delivered",  label:"مكتملة",    icon:"🏁", color:"#8b5cf6" },
 ];
 
-// ── State ────────────────────────────────────────────────────────────────
-let currentUser = null;
-let todayData = { pointage: null, orders: [] };
-let clockInterval = null;
-let renderInterval = null;
-let currentTab = "home";
-let dbListener = null;
+// ── State ─────────────────────────────────────────────────────────────────
+let me = null;           // logged-in user object
+let today = {};          // { pointage, orders:[] }
+let tab = "home";
+let clockTmr = null;
+let dbUnsub  = null;
 
-function todayKey() { return new Date().toISOString().split("T")[0]; }
+// ── Helpers ───────────────────────────────────────────────────────────────
+const dayKey = () => new Date().toISOString().split("T")[0];
+const fmtMs  = ms => { if(!ms||ms<0)return"--"; const m=Math.floor(ms/60000),s=Math.floor((ms%60000)/1000); return `${m}د ${s}ث`; };
+const fmtTs  = ts => ts ? new Date(ts).toLocaleTimeString("ar-MA-u-nu-latn",{hour:"2-digit",minute:"2-digit"}) : "--:--";
+const $       = id => document.getElementById(id);
 
-function fmt(ms) {
-  if (!ms || ms < 0) return "--";
-  const m = Math.floor(ms / 60000), s = Math.floor((ms % 60000) / 1000);
-  return `${m}د ${s}ث`;
-}
-function fmtClock(ts) {
-  if (!ts) return "--:--";
-  return new Date(ts).toLocaleTimeString("ar-MA-u-nu-latn", { hour: "2-digit", minute: "2-digit" });
-}
-
-// ── Show/Hide screens ────────────────────────────────────────────────────
-function showScreen(id) {
-  ["loadingScreen","loginScreen","appScreen"].forEach(s => {
-    const el = document.getElementById(s);
-    el.classList.remove("active");
-    el.style.display = "none";
-  });
-  const target = document.getElementById(id);
-  target.style.display = "";
-  target.classList.add("active");
+// ── Screens ───────────────────────────────────────────────────────────────
+function show(scr) {
+  $("loading").style.display = "none";
+  $("login").classList.remove("show");
+  $("app").classList.remove("show");
+  if (scr === "login") $("login").classList.add("show");
+  if (scr === "app")   $("app").classList.add("show");
 }
 
-// ── Login ────────────────────────────────────────────────────────────────
-window.doLogin = async function() {
-  const email = document.getElementById("loginEmail").value.trim();
-  const pass  = document.getElementById("loginPass").value.trim();
-  const remember = document.getElementById("rememberMe").checked;
-  const errEl = document.getElementById("loginError");
-  errEl.style.display = "none";
+// ── Auto-login from localStorage ─────────────────────────────────────────
+function tryAutoLogin() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("dist_session"));
+    if (saved && saved.id && saved.name) {
+      me = saved;
+      startApp();
+      return;
+    }
+  } catch(e) {}
+  show("login");
+}
+
+// ── Login ─────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const email = $("fEmail").value.trim();
+  const pass  = $("fPass").value.trim();
+  const remember = $("rememberMe").checked;
+  const err = $("loginErr");
+  err.style.display = "none";
 
   if (!email || !pass) {
-    errEl.textContent = "يرجى ملء جميع الحقول";
-    errEl.style.display = "block";
+    err.textContent = "يرجى إدخال البريد وكلمة المرور";
+    err.style.display = "block";
     return;
   }
 
+  $("loginBtn").textContent = "جاري التحقق...";
+  $("loginBtn").disabled = true;
+
   try {
-    const snap = await get(ref(db, "users"));
+    const snap = await new Promise(res => {
+      const unsub = onValue(ref(db, "users"), s => { unsub(); res(s); });
+    });
+
     if (!snap.exists()) {
-      errEl.textContent = "لا يوجد حسابات بعد. تواصل مع المدير.";
-      errEl.style.display = "block";
-      return;
+      throw new Error("لا يوجد حسابات. تواصل مع المدير.");
     }
-    const users = snap.val();
+
     let found = null;
-    Object.entries(users).forEach(([id, u]) => {
+    Object.entries(snap.val()).forEach(([id, u]) => {
       if (u.email === email && u.password === pass && u.role === "distributor") {
         found = { id, ...u };
       }
     });
-    if (!found) {
-      errEl.textContent = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
-      errEl.style.display = "block";
-      document.getElementById("loginCard").classList.add("shake");
-      setTimeout(() => document.getElementById("loginCard").classList.remove("shake"), 600);
-      localStorage.removeItem("dist_saved");
-      return;
-    }
-    // Save if remember checked
+
+    if (!found) throw new Error("البريد أو كلمة المرور غير صحيحة");
+
+    me = found;
     if (remember) {
-      localStorage.setItem("dist_saved", JSON.stringify({ email, pass }));
+      localStorage.setItem("dist_session", JSON.stringify(me));
     } else {
-      localStorage.removeItem("dist_saved");
+      localStorage.removeItem("dist_session");
     }
-    currentUser = found;
     startApp();
   } catch(e) {
-    errEl.textContent = "خطأ في الاتصال: " + e.message;
-    errEl.style.display = "block";
+    err.textContent = e.message;
+    err.style.display = "block";
+    $("loginBox").style.animation = "shake 0.5s ease";
+    setTimeout(() => $("loginBox").style.animation = "", 500);
+  } finally {
+    $("loginBtn").textContent = "تسجيل الدخول";
+    $("loginBtn").disabled = false;
   }
-};
+}
 
-document.getElementById("loginPass").addEventListener("keydown", e => {
-  if (e.key === "Enter") window.doLogin();
-});
+$("loginBtn").addEventListener("click", doLogin);
+$("fPass").addEventListener("keydown", e => { if(e.key==="Enter") doLogin(); });
 
-// ── Start App ────────────────────────────────────────────────────────────
+// ── Start App ─────────────────────────────────────────────────────────────
 function startApp() {
-  showScreen("appScreen");
-  document.getElementById("headerName").textContent = currentUser.name;
+  show("app");
+  $("hName").textContent = me.name;
+  if (clockTmr) clearInterval(clockTmr);
+  clockTmr = setInterval(tick, 1000);
+  tick();
 
-  // Clock
-  if (clockInterval) clearInterval(clockInterval);
-  clockInterval = setInterval(updateClock, 1000);
-  updateClock();
-
-  // Listen to Firebase for real-time updates
-  const dataRef = ref(db, `deliveryData/${currentUser.id}/${todayKey()}`);
-  if (dbListener) dbListener(); // detach previous
-  dbListener = onValue(dataRef, snap => {
-    todayData = snap.exists() ? snap.val() : { pointage: null, orders: [] };
-    if (!todayData.orders) todayData.orders = [];
+  if (dbUnsub) dbUnsub();
+  dbUnsub = onValue(ref(db, `deliveryData/${me.id}/${dayKey()}`), snap => {
+    today = snap.exists() ? snap.val() : { pointage: null, orders: [] };
+    if (!today.orders) today.orders = [];
     render();
   });
 }
 
-function updateClock() {
-  const now = new Date();
-  document.getElementById("headerClock").textContent =
-    now.toLocaleTimeString("ar-MA-u-nu-latn", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
-  document.getElementById("headerDate").textContent =
-    now.toLocaleDateString("ar-MA-u-nu-latn", { weekday:"long", day:"numeric", month:"long" });
+// ── Logout ────────────────────────────────────────────────────────────────
+$("logoutBtn").addEventListener("click", () => {
+  if (clockTmr) clearInterval(clockTmr);
+  if (dbUnsub)  dbUnsub();
+  localStorage.removeItem("dist_session");
+  me = null; today = {};
+  show("login");
+});
+
+// ── Clock ─────────────────────────────────────────────────────────────────
+function tick() {
+  const n = new Date();
+  $("hClock").textContent = n.toLocaleTimeString("ar-MA-u-nu-latn",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  $("hDate").textContent  = n.toLocaleDateString("ar-MA-u-nu-latn",{weekday:"long",day:"numeric",month:"long"});
+  if (me) render();
 }
 
-// ── Logout ───────────────────────────────────────────────────────────────
-window.doLogout = function() {
-  if (clockInterval) clearInterval(clockInterval);
-  if (dbListener) dbListener();
-  currentUser = null;
-  todayData = { pointage: null, orders: [] };
-  showScreen("loginScreen");
-};
-
-// ── Save to Firebase ─────────────────────────────────────────────────────
-async function saveToday() {
-  await set(ref(db, `deliveryData/${currentUser.id}/${todayKey()}`), todayData);
+// ── Save ──────────────────────────────────────────────────────────────────
+async function save() {
+  await set(ref(db, `deliveryData/${me.id}/${dayKey()}`), today);
 }
 
-// ── Pointage ─────────────────────────────────────────────────────────────
-window.doPointage = async function() {
-  if (todayData.pointage) return;
-  todayData.pointage = Date.now();
-  await saveToday();
+// ── Pointage ──────────────────────────────────────────────────────────────
+window.doPointage = async () => {
+  if (today.pointage) return;
+  today.pointage = Date.now();
+  await save();
 };
 
-// ── Add Order ────────────────────────────────────────────────────────────
-window.addOrder = async function() {
-  const orders = todayData.orders || [];
-  const id = String(Date.now()).slice(-4);
-  orders.push({ id, createdAt: Date.now(), stages: {} });
-  todayData.orders = orders;
-  await saveToday();
-  showTab("orders");
+// ── Add Order ─────────────────────────────────────────────────────────────
+window.addOrder = async () => {
+  const orders = today.orders || [];
+  orders.push({ id: String(Date.now()).slice(-4), createdAt: Date.now(), stages: {} });
+  today.orders = orders;
+  await save();
+  goTab("orders");
 };
 
-// ── Stage Change ─────────────────────────────────────────────────────────
-window.doStage = async function(orderId, stageKey) {
-  const orders = todayData.orders || [];
-  const idx = orders.findIndex(o => o.id === orderId);
-  if (idx === -1) return;
-  orders[idx].stages[stageKey] = Date.now();
-  todayData.orders = orders;
-  await saveToday();
+// ── Stage ─────────────────────────────────────────────────────────────────
+window.doStage = async (oid, key) => {
+  const orders = today.orders || [];
+  const o = orders.find(x => x.id === oid);
+  if (!o) return;
+  o.stages[key] = Date.now();
+  today.orders = orders;
+  await save();
 };
 
-// ── Tabs ─────────────────────────────────────────────────────────────────
-window.showTab = function(tab) {
-  currentTab = tab;
-  document.getElementById("homeSection").style.display = tab === "home" ? "block" : "none";
-  document.getElementById("ordersSection").style.display = tab === "orders" ? "block" : "none";
-  document.getElementById("tabHome").className = "tab-btn " + (tab === "home" ? "active" : "inactive");
-  document.getElementById("tabOrders").className = "tab-btn " + (tab === "orders" ? "active" : "inactive");
+// ── Tab ───────────────────────────────────────────────────────────────────
+window.goTab = (t) => {
+  tab = t;
+  $("secHome").style.display   = t==="home"   ? "block" : "none";
+  $("secOrders").style.display = t==="orders" ? "block" : "none";
+  $("tabHome").className   = "tab " + (t==="home"   ? "on" : "off");
+  $("tabOrders").className = "tab " + (t==="orders" ? "on" : "off");
   render();
 };
 
 // ── Render ────────────────────────────────────────────────────────────────
 function render() {
-  const now = Date.now();
-  const orders = todayData.orders || [];
-  const completed = orders.filter(o => o.stages.delivered);
-  const lateOrders = orders.filter(o => o.stages.accepted && !o.stages.delivered && (now - o.stages.accepted) > MAX_MIN * 60000);
-  const totalProfit = completed.length * PROFIT;
+  if (!me) return;
+  const now      = Date.now();
+  const orders   = today.orders || [];
+  const done     = orders.filter(o => o.stages.delivered);
+  const late     = orders.filter(o => o.stages.accepted && !o.stages.delivered && now-o.stages.accepted > MAX_MIN*60000);
+  const profit   = done.length * PROFIT;
 
-  // Late badge
-  const lb = document.getElementById("lateBadge");
-  if (lateOrders.length > 0) {
-    lb.style.display = "flex";
-    lb.textContent = lateOrders.length;
-  } else {
-    lb.style.display = "none";
-  }
+  // Late dot
+  const ld = $("lateDot");
+  ld.style.display = late.length ? "flex" : "none";
+  ld.textContent = late.length;
 
-  // Update tab label
-  document.getElementById("tabOrders").textContent = `📦 الطلبيات (${orders.length})`;
+  // Tab label
+  $("tabOrders").textContent = `📦 الطلبيات (${orders.length})`;
 
   // Stats bar
-  const stats = [
-    { icon: "🕐", val: todayData.pointage ? fmtClock(todayData.pointage) : "لم يسجل", lbl: "الحضور", color: todayData.pointage ? "#22c55e" : "#ef4444" },
-    { icon: "📋", val: orders.length, lbl: "الطلبيات", color: "#3b82f6" },
-    { icon: "✅", val: completed.length, lbl: "المكتملة", color: "#8b5cf6" },
-    { icon: "💰", val: totalProfit + " د", lbl: "الأرباح", color: "#d4a017" },
+  const ST = [
+    {i:"🕐", v: today.pointage ? fmtTs(today.pointage) : "لم يسجل", l:"حضور",     c: today.pointage?"#16a34a":"#ef4444"},
+    {i:"📋", v: orders.length,  l:"الطلبيات", c:"#3b82f6"},
+    {i:"✅", v: done.length,    l:"مكتملة",   c:"#8b5cf6"},
+    {i:"💰", v: profit+"د",     l:"الأرباح",  c:"#d97706"},
+    ...(late.length ? [{i:"⚠️", v:late.length, l:"متأخرة", c:"#ef4444"}] : []),
   ];
-  if (lateOrders.length) stats.push({ icon: "⚠️", val: lateOrders.length, lbl: "متأخرة!", color: "#ef4444" });
-
-  document.getElementById("statsBar").innerHTML = stats.map((s, i) => `
-    <div class="stat-card" style="border:1px solid ${s.color}22;animation-delay:${i*0.07}s">
-      <div style="font-size:17px">${s.icon}</div>
-      <div class="stat-val" style="color:${s.color}">${s.val}</div>
-      <div class="stat-lbl">${s.lbl}</div>
+  $("statsBar").innerHTML = ST.map((s,i) =>
+    `<div class="stat" style="border:1px solid ${s.c}22;animation-delay:${i*0.06}s">
+      <div style="font-size:16px">${s.i}</div>
+      <div class="stat-v" style="color:${s.c}">${s.v}</div>
+      <div class="stat-l">${s.l}</div>
     </div>`).join("");
 
-  if (currentTab === "home") renderHome(orders, completed, lateOrders, totalProfit, now);
-  else renderOrders(orders, now);
+  if (tab === "home")   renderHome(orders, done, late, profit, now);
+  else                  renderOrders(orders, now);
 }
 
-function renderHome(orders, completed, lateOrders, totalProfit, now) {
-  let html = "";
+// ── Home ──────────────────────────────────────────────────────────────────
+function renderHome(orders, done, late, profit, now) {
+  let h = "";
 
   // Pointage
-  if (!todayData.pointage) {
-    html += `<div class="pointage-box pending">
-      <div style="font-size:36px;margin-bottom:10px">👋</div>
-      <div style="color:#22c55e;font-weight:700;font-size:16px;margin-bottom:6px">تسجيل الحضور</div>
-      <div style="color:#9ca3af;font-size:12px;margin-bottom:14px">سجّل حضورك لبدء يوم العمل</div>
-      <button class="btn-primary" style="width:auto;padding:10px 24px" onclick="doPointage()">🕐 تسجيل الحضور الآن</button>
+  if (!today.pointage) {
+    h += `<div class="ptg-pending">
+      <div style="font-size:36px;margin-bottom:8px">👋</div>
+      <div style="color:#16a34a;font-weight:700;font-size:16px;margin-bottom:6px">سجّل حضورك</div>
+      <div style="color:#64748b;font-size:12px;margin-bottom:14px">لبدء يوم العمل</div>
+      <button class="btn-main" style="width:auto;padding:10px 22px" onclick="doPointage()">🕐 تسجيل الحضور الآن</button>
     </div>`;
   } else {
-    html += `<div class="pointage-box done" style="margin-top:12px">
-      <span style="color:#4ade80;font-size:13px">✅ تم تسجيل الحضور</span>
-      <span style="color:#22c55e;font-weight:700">${fmtClock(todayData.pointage)}</span>
+    h += `<div class="ptg-done">
+      <span style="color:#16a34a;font-size:13px">✅ تم تسجيل الحضور</span>
+      <span style="color:#16a34a;font-weight:700">${fmtTs(today.pointage)}</span>
     </div>`;
   }
 
-  // Late alert
-  if (lateOrders.length > 0) {
-    html += `<div class="alert-box pulse">
-      <div class="alert-title">⚠️ تنبيه: طلبيات متأخرة!</div>
-      <div class="alert-text">لديك ${lateOrders.length} طلبية تجاوزت الحد الأقصى (${MAX_MIN} دقيقة)</div>
+  if (late.length) {
+    h += `<div class="alert-late">
+      <div style="color:#ef4444;font-weight:700;font-size:14px;margin-bottom:4px">⚠️ طلبيات متأخرة!</div>
+      <div style="color:#f87171;font-size:12px">لديك ${late.length} طلبية تجاوزت ${MAX_MIN} دقيقة</div>
     </div>`;
   }
 
-  // Stats
-  html += `<div class="daily-stats">
-    <h3>📊 إحصائيات اليوم</h3>
+  h += `<div class="card">
+    <div class="card-title">📊 إحصائيات اليوم</div>
     ${[
       ["إجمالي الطلبيات", orders.length, "#3b82f6"],
-      ["الطلبيات المكتملة", completed.length, "#22c55e"],
-      ["قيد التنفيذ", orders.length - completed.length, "#d4a017"],
-      ["إجمالي الأرباح", totalProfit + " درهم", "#16a34a"],
-    ].map(([l,v,c]) => `<div class="stat-row"><span class="stat-row-lbl">${l}</span><span class="stat-row-val" style="color:${c}">${v}</span></div>`).join("")}
+      ["المكتملة", done.length, "#16a34a"],
+      ["قيد التنفيذ", orders.length - done.length, "#d97706"],
+      ["إجمالي الأرباح", profit + " درهم", "#16a34a"],
+    ].map(([l,v,c]) =>
+      `<div class="row"><span class="row-l">${l}</span><span class="row-v" style="color:${c}">${v}</span></div>`
+    ).join("")}
   </div>`;
 
-  html += `<button class="btn-primary" onclick="addOrder()">➕ إضافة طلبية جديدة</button>`;
-  document.getElementById("homeSection").innerHTML = html;
+  h += `<button class="add-btn" onclick="addOrder()">➕ إضافة طلبية جديدة</button>`;
+  $("secHome").innerHTML = h;
 }
 
+// ── Orders ────────────────────────────────────────────────────────────────
 function renderOrders(orders, now) {
-  let html = `<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0 10px">
-    <h3 style="font-weight:700;font-size:15px;color:#d1fae5">طلبيات اليوم</h3>
-    <button onclick="addOrder()" style="background:#16a34a;border:none;border-radius:10px;color:#fff;padding:7px 14px;font-size:12px;font-weight:600">➕ جديدة</button>
+  let h = `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0 10px">
+    <span style="font-weight:700;font-size:15px">طلبيات اليوم</span>
+    <button class="add-btn-sm" onclick="addOrder()">➕ جديدة</button>
   </div>`;
 
-  if (orders.length === 0) {
-    html += `<div style="text-align:center;padding:60px 20px;color:#374151">
-      <div style="font-size:44px;margin-bottom:14px">📭</div>
-      <p>لا توجد طلبيات اليوم بعد</p>
-    </div>`;
+  if (!orders.length) {
+    h += `<div class="empty"><div class="empty-ico">📭</div><p>لا توجد طلبيات اليوم</p></div>`;
   } else {
-    [...orders].reverse().forEach(order => {
-      html += renderOrderCard(order, now);
-    });
+    [...orders].reverse().forEach(o => { h += orderCard(o, now); });
   }
-  document.getElementById("ordersSection").innerHTML = html;
+  $("secOrders").innerHTML = h;
 }
 
-function renderOrderCard(order, now) {
-  const isComplete = !!order.stages.delivered;
-  const elapsed = order.stages.accepted && !isComplete ? now - order.stages.accepted : 0;
-  const totalMs = isComplete && order.stages.accepted ? order.stages.delivered - order.stages.accepted : 0;
-  const elapsedMin = elapsed / 60000;
-  const isLate = !isComplete && elapsedMin > MAX_MIN;
-  const isWarn = !isComplete && elapsedMin > MAX_MIN * 0.8 && !isLate;
-  const cls = isLate ? "late" : isWarn ? "warning" : "normal";
+// ── Order Card ────────────────────────────────────────────────────────────
+function orderCard(o, now) {
+  const done     = !!o.stages.delivered;
+  const elapsed  = o.stages.accepted && !done ? now - o.stages.accepted : 0;
+  const totalMs  = done && o.stages.accepted ? o.stages.delivered - o.stages.accepted : 0;
+  const isLate   = !done && elapsed > MAX_MIN * 60000;
+  const isWarn   = !done && !isLate && elapsed > MAX_MIN * 60000 * 0.8;
+  const cls      = isLate ? "o-late" : isWarn ? "o-warn" : "o-norm";
+  const si       = STAGES.reduce((a,s,i) => o.stages[s.key] ? i : a, -1);
 
-  const stageIdx = STAGES.reduce((acc, s, i) => order.stages[s.key] ? i : acc, -1);
-
-  let html = `<div class="order-card ${cls}">
-    <div class="order-header">
-      <div><span style="color:#9ca3af;font-size:12px">طلبية </span><span class="order-id">#${order.id}</span></div>
-      <div style="display:flex;gap:6px;align-items:center">
-        ${isComplete ? '<span class="badge badge-complete">✅ مكتملة</span>' : ""}
-        ${isLate ? '<span class="badge badge-late pulse">⚠️ متأخرة!</span>' : ""}
-        ${isWarn && !isLate ? '<span class="badge badge-warn">⏰ تنبيه</span>' : ""}
-        <span class="order-profit">+${PROFIT} درهم</span>
+  let h = `<div class="o-card ${cls}">
+    <div class="o-head">
+      <div><span style="color:#94a3b8;font-size:11px">طلبية </span><span class="o-id">#${o.id}</span></div>
+      <div style="display:flex;gap:5px;align-items:center">
+        ${done   ? '<span class="badge b-done">✅ مكتملة</span>'       : ""}
+        ${isLate ? '<span class="badge b-late">⚠️ متأخرة!</span>'      : ""}
+        ${isWarn ? '<span class="badge b-warn">⏰ تنبيه</span>'         : ""}
+        <span class="o-profit">+${PROFIT}د</span>
       </div>
     </div>`;
 
-  if (elapsed && !isComplete) {
-    html += `<div class="timer-bar" style="${isLate ? 'background:rgba(239,68,68,0.08)' : ''}">
-      <span class="timer-lbl">الوقت منذ القبول:</span>
-      <span class="timer-val" style="color:${isLate ? '#f87171' : '#fff'}">${fmt(elapsed)}</span>
+  if (elapsed && !done) {
+    h += `<div class="timer" style="${isLate?'background:#fef2f2;border-color:#fecaca':''}">
+      <span class="timer-l">الوقت منذ القبول:</span>
+      <span class="timer-v" style="color:${isLate?'#ef4444':'#1e293b'}">${fmtMs(elapsed)}</span>
     </div>`;
   }
 
-  html += `<div class="stages">`;
-  STAGES.forEach((stage, idx) => {
-    const done = !!order.stages[stage.key];
-    const isNext = !done && idx === stageIdx + 1 && !isComplete;
-    const op = done || isNext ? 1 : 0.35;
-    html += `<div class="stage-item ${isNext ? 'clickable' : ''}"
-      style="background:${done ? stage.color+'18' : 'transparent'};border-color:${done ? stage.color : isNext ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'};opacity:${op}"
-      ${isNext ? `onclick="doStage('${order.id}','${stage.key}')"` : ""}>
-      <div class="stage-icon">${stage.icon}</div>
-      <div class="stage-label" style="color:${done ? stage.color : isNext ? '#d1d5db' : '#4b5563'}">${stage.label}</div>
-      <div class="stage-time">${order.stages[stage.key] ? fmtClock(order.stages[stage.key]) : ''}</div>
+  h += `<div class="stages">`;
+  STAGES.forEach((s, i) => {
+    const isDone = !!o.stages[s.key];
+    const isNext = !isDone && i === si + 1 && !done;
+    const op     = isDone || isNext ? 1 : 0.3;
+    h += `<div class="stg ${isNext?'clickable':''}"
+      style="background:${isDone?s.color+'18':'transparent'};border-color:${isDone?s.color:isNext?'#94a3b8':'#e2e8f0'};opacity:${op};${isNext?'cursor:pointer':''}"
+      ${isNext ? `onclick="doStage('${o.id}','${s.key}')"` : ""}>
+      <div class="stg-ico">${s.icon}</div>
+      <div class="stg-lbl" style="color:${isDone?s.color:isNext?'#1e293b':'#94a3b8'}">${s.label}</div>
+      <div class="stg-time">${o.stages[s.key] ? fmtTs(o.stages[s.key]) : ''}</div>
     </div>`;
   });
-  html += `</div>`;
+  h += `</div>`;
 
-  if (isComplete && totalMs) {
-    html += `<div class="total-time">
-      <span class="total-time-lbl">إجمالي وقت التوصيل:</span>
-      <span class="total-time-val">${fmt(totalMs)}</span>
+  if (done && totalMs) {
+    h += `<div class="total">
+      <span class="total-l">إجمالي وقت التوصيل:</span>
+      <span class="total-v">${fmtMs(totalMs)}</span>
     </div>`;
   }
 
-  html += `</div>`;
-  return html;
+  h += `</div>`;
+  return h;
 }
 
-// ── Re-render timer ───────────────────────────────────────────────────────
-setInterval(() => { if (currentUser) render(); }, 5000);
-
-// ── Install PWA ──────────────────────────────────────────────────────────
+// ── PWA Install ───────────────────────────────────────────────────────────
 let deferredPrompt = null;
 window.addEventListener("beforeinstallprompt", e => {
   e.preventDefault();
   deferredPrompt = e;
-  const btn = document.getElementById("installBtn");
-  if (btn) btn.style.display = "block";
+  $("installBtn").style.display = "block";
 });
-window.doInstall = async function() {
+window.doInstall = async () => {
   if (!deferredPrompt) {
-    alert("لإضافة التطبيق للشاشة الرئيسية:\niPhone: اضغط Share ← Add to Home Screen\nAndroid: القائمة ⋮ ← Add to Home Screen");
+    alert("لإضافة للشاشة الرئيسية:\niPhone: Share ← Add to Home Screen\nAndroid: القائمة ⋮ ← Add to Home Screen");
     return;
   }
   deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
+  await deferredPrompt.userChoice;
   deferredPrompt = null;
-  document.getElementById("installBtn").style.display = "none";
+  $("installBtn").style.display = "none";
 };
 
+// ── Re-render every 10s for timers ───────────────────────────────────────
+setInterval(() => { if (me) render(); }, 10000);
+
 // ── Init ──────────────────────────────────────────────────────────────────
-showScreen("loginScreen");
-try {
-  const saved = JSON.parse(localStorage.getItem("dist_saved"));
-  if (saved) {
-    document.getElementById("loginEmail").value = saved.email;
-    document.getElementById("loginPass").value = saved.pass;
-    document.getElementById("rememberMe").checked = true;
-  }
-} catch(e) {}
+tryAutoLogin();
 </script>
 </body>
 </html>
