@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<title>تطبيق الموزع — Kaalix Agadir</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Cairo',sans-serif;background:#052e16;color:#fff;min-height:100vh;direction:rtl}
+  input{font-family:'Cairo',sans-serif}
+  button{font-family:'Cairo',sans-serif;cursor:pointer}
+  ::-webkit-scrollbar{width:4px}
+  ::-webkit-scrollbar-thumb{background:#166534;border-radius:4px}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .fade-in{animation:fadeIn 0.4s ease}
+  .shake{animation:shake 0.5s ease}
+  .pulse{animation:pulse 1.5s infinite}
+  .screen{display:none;min-height:100vh}
+  .screen.active{display:block}
+
+  /* LOGIN */
+  #loginScreen{background:linear-gradient(135deg,#052e16 0%,#064e3b 50%,#052e16 100%);display:flex;align-items:center;justify-content:center;padding:20px}
+  #loginScreen.active{display:flex}
+  .login-card{background:rgba(255,255,255,0.06);backdrop-filter:blur(20px);border:1px solid rgba(34,197,94,0.25);border-radius:20px;padding:40px 32px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.5),0 0 40px rgba(22,163,74,0.1)}
+  .login-logo{text-align:center;font-size:52px;margin-bottom:12px}
+  .login-title{text-align:center;font-size:22px;font-weight:800;color:#fff;margin-bottom:4px}
+  .login-sub{text-align:center;color:#6ee7b7;font-size:13px;margin-bottom:32px}
+  .form-label{color:#a7f3d0;font-size:13px;display:block;margin-bottom:8px}
+  .form-input{width:100%;padding:12px 16px;background:rgba(255,255,255,0.07);border:1px solid rgba(34,197,94,0.2);border-radius:10px;color:#fff;font-size:14px;transition:all 0.2s;outline:none}
+  .form-input:focus{border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,0.2)}
+  .form-group{margin-bottom:20px}
+  .btn-primary{width:100%;padding:14px;background:#16a34a;border:none;border-radius:10px;color:#fff;font-size:16px;font-weight:700;transition:all 0.2s}
+  .btn-primary:hover{background:#15803d;transform:translateY(-1px)}
+  .btn-primary:active{transform:translateY(0)}
+  .error-box{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 14px;margin-bottom:16px;color:#fca5a5;font-size:13px;text-align:center}
+  .login-hint{margin-top:20px;text-align:center;padding:12px;background:rgba(22,163,74,0.06);border-radius:10px;border:1px solid rgba(22,163,74,0.15);color:#4ade80;font-size:12px}
+
+  /* HEADER */
+  .app-header{background:rgba(0,0,0,0.3);backdrop-filter:blur(12px);border-bottom:1px solid rgba(34,197,94,0.15);padding:14px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50}
+  .header-name{color:#fff;font-weight:700;font-size:15px}
+  .header-date{color:#6ee7b7;font-size:11px}
+  .header-clock{color:#16a34a;font-weight:700;font-size:17px;direction:ltr}
+  .btn-logout{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#f87171;border-radius:8px;padding:6px 12px;font-size:12px}
+
+  /* STATS BAR */
+  .stats-bar{padding:14px 16px 0;display:flex;gap:10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .stat-card{background:rgba(255,255,255,0.04);border-radius:12px;padding:10px 14px;min-width:90px;flex:0 0 auto;animation:fadeIn 0.4s ease both}
+  .stat-val{font-weight:700;font-size:18px}
+  .stat-lbl{color:#6b7280;font-size:10px;margin-top:2px}
+
+  /* TABS */
+  .tabs{padding:12px 16px 8px;display:flex;gap:8px}
+  .tab-btn{flex:1;padding:10px 6px;border:none;border-radius:10px;font-size:13px;font-weight:600;transition:all 0.2s}
+  .tab-btn.active{background:#16a34a;color:#fff}
+  .tab-btn.inactive{background:rgba(255,255,255,0.05);color:#9ca3af}
+
+  /* CONTENT */
+  .content{padding:0 16px 40px}
+  .section{animation:fadeIn 0.3s ease}
+
+  /* POINTAGE */
+  .pointage-box{border-radius:14px;padding:20px;text-align:center;margin-bottom:16px;margin-top:12px}
+  .pointage-box.pending{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.3)}
+  .pointage-box.done{background:rgba(22,163,74,0.06);border:1px solid rgba(22,163,74,0.2);display:flex;justify-content:space-between;align-items:center;text-align:right}
+
+  /* ALERT */
+  .alert-box{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);border-radius:12px;padding:14px;margin-bottom:14px}
+  .alert-title{color:#f87171;font-weight:700;font-size:14px;margin-bottom:4px}
+  .alert-text{color:#fca5a5;font-size:12px}
+
+  /* DAILY STATS */
+  .daily-stats{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:18px;margin-bottom:14px}
+  .daily-stats h3{font-weight:700;font-size:14px;margin-bottom:14px;color:#d1fae5}
+  .stat-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+  .stat-row:last-child{border-bottom:none}
+  .stat-row-lbl{color:#9ca3af;font-size:13px}
+  .stat-row-val{font-weight:700;font-size:14px}
+
+  /* ORDER CARD */
+  .order-card{border-radius:14px;padding:18px;margin-bottom:14px;transition:all 0.3s}
+  .order-card.normal{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08)}
+  .order-card.warning{background:rgba(234,179,8,0.06);border:1px solid rgba(212,160,23,0.3)}
+  .order-card.late{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.35)}
+  .order-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .order-id{color:#d4a017;font-weight:700;font-size:17px}
+  .order-profit{color:#22c55e;font-weight:700;font-size:14px}
+  .badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge-complete{background:rgba(139,92,246,0.2);color:#a78bfa}
+  .badge-late{background:rgba(239,68,68,0.2);color:#f87171}
+  .badge-warn{background:rgba(212,160,23,0.2);color:#d4a017}
+
+  /* TIMER BAR */
+  .timer-bar{background:rgba(255,255,255,0.04);border-radius:8px;padding:8px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+  .timer-lbl{color:#9ca3af;font-size:11px}
+  .timer-val{font-weight:700;font-size:15px;direction:ltr}
+
+  /* STAGES */
+  .stages{display:flex;gap:6px;margin-bottom:10px}
+  .stage-item{flex:1;text-align:center;padding:7px 4px;border-radius:10px;border:1px solid;transition:all 0.2s;cursor:default}
+  .stage-item.clickable{cursor:pointer}
+  .stage-item.clickable:hover{filter:brightness(1.2)}
+  .stage-icon{font-size:16px}
+  .stage-label{font-size:9px;margin-top:3px;font-weight:600}
+  .stage-time{font-size:8px;margin-top:2px;color:#6b7280}
+
+  /* TOTAL TIME */
+  .total-time{background:rgba(139,92,246,0.08);border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between}
+  .total-time-lbl{color:#a78bfa;font-size:12px}
+  .total-time-val{color:#c4b5fd;font-weight:700;direction:ltr}
+
+  /* LOADING */
+  #loadingScreen{background:#052e16;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+  #loadingScreen.active{display:flex}
+  .spinner{width:40px;height:40px;border:3px solid rgba(22,163,74,0.2);border-top-color:#16a34a;border-radius:50%;animation:spin 0.8s linear infinite}
+
+  /* LATE BADGE PULSE */
+  .late-badge{background:#ef4444;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;animation:pulse 1s infinite}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loadingScreen" class="screen active">
+  <div class="spinner"></div>
+  <p style="color:#6ee7b7;font-size:14px">جاري التحميل...</p>
+</div>
+
+<!-- Login -->
+<div id="loginScreen" class="screen">
+  <div class="login-card fade-in" id="loginCard">
+    <div class="login-logo">🛵</div>
+    <div class="login-title">نظام الموزعين</div>
+    <div class="login-sub">Kaalix Agadir — تطبيق التوصيل</div>
+    <div class="form-group">
+      <label class="form-label">البريد الإلكتروني</label>
+      <input class="form-input" type="email" id="loginEmail" placeholder="example@agadir.ma"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">كلمة المرور (6 أرقام)</label>
+      <input class="form-input" type="password" id="loginPass" maxlength="6" placeholder="••••••" style="letter-spacing:6px;font-size:18px"/>
+    </div>
+    <div class="error-box" id="loginError" style="display:none"></div>
+    <button class="btn-primary" onclick="doLogin()">تسجيل الدخول</button>
+    <div class="login-hint">🔑 حسابك يُنشأ من طرف المدير</div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="appScreen" class="screen">
+  <!-- Header -->
+  <div class="app-header">
+    <div>
+      <div class="header-name" id="headerName">—</div>
+      <div class="header-date" id="headerDate">—</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="header-clock" id="headerClock">—</div>
+      <div class="late-badge" id="lateBadge" style="display:none">0</div>
+      <button class="btn-logout" onclick="doLogout()">خروج</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar" id="statsBar"></div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tabHome" onclick="showTab('home')">🏠 الرئيسية</button>
+    <button class="tab-btn inactive" id="tabOrders" onclick="showTab('orders')">📦 الطلبيات</button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <div id="homeSection" class="section"></div>
+    <div id="ordersSection" class="section" style="display:none"></div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// ── Firebase Config ──────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyCgFA2A9RzBEZooaXRg6WEqcgg0ooo19cg",
+  authDomain: "livraison-kaalix-agadir.firebaseapp.com",
+  databaseURL: "https://livraison-kaalix-agadir-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "livraison-kaalix-agadir",
+  storageBucket: "livraison-kaalix-agadir.firebasestorage.app",
+  messagingSenderId: "185085591440",
+  appId: "1:185085591440:web:1a353e8caf0e1b418c3d15",
+  measurementId: "G-Q8RMZXD716"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ── Constants ────────────────────────────────────────────────────────────
+const MAX_MIN = 45;
+const PROFIT = 15;
+const STAGES = [
+  { key: "accepted",  label: "قبول الطلبية",    icon: "✅", color: "#22c55e" },
+  { key: "preparing", label: "الأداء / التحضير", icon: "📦", color: "#d4a017" },
+  { key: "delivering",label: "بداية التوصيل",   icon: "🛵", color: "#3b82f6" },
+  { key: "delivered", label: "نهاية التوصيل",   icon: "🏁", color: "#8b5cf6" },
+];
+
+// ── State ────────────────────────────────────────────────────────────────
+let currentUser = null;
+let todayData = { pointage: null, orders: [] };
+let clockInterval = null;
+let renderInterval = null;
+let currentTab = "home";
+let dbListener = null;
+
+function todayKey() { return new Date().toISOString().split("T")[0]; }
+
+function fmt(ms) {
+  if (!ms || ms < 0) return "--";
+  const m = Math.floor(ms / 60000), s = Math.floor((ms % 60000) / 1000);
+  return `${m}د ${s}ث`;
+}
+function fmtClock(ts) {
+  if (!ts) return "--:--";
+  return new Date(ts).toLocaleTimeString("ar-MA-u-nu-latn", { hour: "2-digit", minute: "2-digit" });
+}
+
+// ── Show/Hide screens ────────────────────────────────────────────────────
+function showScreen(id) {
+  ["loadingScreen","loginScreen","appScreen"].forEach(s => {
+    const el = document.getElementById(s);
+    el.classList.remove("active");
+    el.style.display = "none";
+  });
+  const target = document.getElementById(id);
+  target.style.display = "";
+  target.classList.add("active");
+}
+
+// ── Login ────────────────────────────────────────────────────────────────
+window.doLogin = async function() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const pass  = document.getElementById("loginPass").value.trim();
+  const errEl = document.getElementById("loginError");
+  errEl.style.display = "none";
+
+  if (!email || !pass) {
+    errEl.textContent = "يرجى ملء جميع الحقول";
+    errEl.style.display = "block";
+    return;
+  }
+
+  try {
+    const snap = await get(ref(db, "users"));
+    if (!snap.exists()) {
+      errEl.textContent = "لا يوجد حسابات بعد. تواصل مع المدير.";
+      errEl.style.display = "block";
+      return;
+    }
+    const users = snap.val();
+    let found = null;
+    Object.entries(users).forEach(([id, u]) => {
+      if (u.email === email && u.password === pass && u.role === "distributor") {
+        found = { id, ...u };
+      }
+    });
+    if (!found) {
+      errEl.textContent = "البريد الإلكتروني أو كلمة المرور غير صحيحة";
+      errEl.style.display = "block";
+      document.getElementById("loginCard").classList.add("shake");
+      setTimeout(() => document.getElementById("loginCard").classList.remove("shake"), 600);
+      return;
+    }
+    currentUser = found;
+    startApp();
+  } catch(e) {
+    errEl.textContent = "خطأ في الاتصال: " + e.message;
+    errEl.style.display = "block";
+  }
+};
+
+document.getElementById("loginPass").addEventListener("keydown", e => {
+  if (e.key === "Enter") window.doLogin();
+});
+
+// ── Start App ────────────────────────────────────────────────────────────
+function startApp() {
+  showScreen("appScreen");
+  document.getElementById("headerName").textContent = currentUser.name;
+
+  // Clock
+  if (clockInterval) clearInterval(clockInterval);
+  clockInterval = setInterval(updateClock, 1000);
+  updateClock();
+
+  // Listen to Firebase for real-time updates
+  const dataRef = ref(db, `deliveryData/${currentUser.id}/${todayKey()}`);
+  if (dbListener) dbListener(); // detach previous
+  dbListener = onValue(dataRef, snap => {
+    todayData = snap.exists() ? snap.val() : { pointage: null, orders: [] };
+    if (!todayData.orders) todayData.orders = [];
+    render();
+  });
+}
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById("headerClock").textContent =
+    now.toLocaleTimeString("ar-MA-u-nu-latn", { hour:"2-digit", minute:"2-digit", second:"2-digit" });
+  document.getElementById("headerDate").textContent =
+    now.toLocaleDateString("ar-MA-u-nu-latn", { weekday:"long", day:"numeric", month:"long" });
+}
+
+// ── Logout ───────────────────────────────────────────────────────────────
+window.doLogout = function() {
+  if (clockInterval) clearInterval(clockInterval);
+  if (dbListener) dbListener();
+  currentUser = null;
+  todayData = { pointage: null, orders: [] };
+  showScreen("loginScreen");
+};
+
+// ── Save to Firebase ─────────────────────────────────────────────────────
+async function saveToday() {
+  await set(ref(db, `deliveryData/${currentUser.id}/${todayKey()}`), todayData);
+}
+
+// ── Pointage ─────────────────────────────────────────────────────────────
+window.doPointage = async function() {
+  if (todayData.pointage) return;
+  todayData.pointage = Date.now();
+  await saveToday();
+};
+
+// ── Add Order ────────────────────────────────────────────────────────────
+window.addOrder = async function() {
+  const orders = todayData.orders || [];
+  const id = String(Date.now()).slice(-4);
+  orders.push({ id, createdAt: Date.now(), stages: {} });
+  todayData.orders = orders;
+  await saveToday();
+  showTab("orders");
+};
+
+// ── Stage Change ─────────────────────────────────────────────────────────
+window.doStage = async function(orderId, stageKey) {
+  const orders = todayData.orders || [];
+  const idx = orders.findIndex(o => o.id === orderId);
+  if (idx === -1) return;
+  orders[idx].stages[stageKey] = Date.now();
+  todayData.orders = orders;
+  await saveToday();
+};
+
+// ── Tabs ─────────────────────────────────────────────────────────────────
+window.showTab = function(tab) {
+  currentTab = tab;
+  document.getElementById("homeSection").style.display = tab === "home" ? "block" : "none";
+  document.getElementById("ordersSection").style.display = tab === "orders" ? "block" : "none";
+  document.getElementById("tabHome").className = "tab-btn " + (tab === "home" ? "active" : "inactive");
+  document.getElementById("tabOrders").className = "tab-btn " + (tab === "orders" ? "active" : "inactive");
+  render();
+};
+
+// ── Render ────────────────────────────────────────────────────────────────
+function render() {
+  const now = Date.now();
+  const orders = todayData.orders || [];
+  const completed = orders.filter(o => o.stages.delivered);
+  const lateOrders = orders.filter(o => o.stages.accepted && !o.stages.delivered && (now - o.stages.accepted) > MAX_MIN * 60000);
+  const totalProfit = completed.length * PROFIT;
+
+  // Late badge
+  const lb = document.getElementById("lateBadge");
+  if (lateOrders.length > 0) {
+    lb.style.display = "flex";
+    lb.textContent = lateOrders.length;
+  } else {
+    lb.style.display = "none";
+  }
+
+  // Update tab label
+  document.getElementById("tabOrders").textContent = `📦 الطلبيات (${orders.length})`;
+
+  // Stats bar
+  const stats = [
+    { icon: "🕐", val: todayData.pointage ? fmtClock(todayData.pointage) : "لم يسجل", lbl: "الحضور", color: todayData.pointage ? "#22c55e" : "#ef4444" },
+    { icon: "📋", val: orders.length, lbl: "الطلبيات", color: "#3b82f6" },
+    { icon: "✅", val: completed.length, lbl: "المكتملة", color: "#8b5cf6" },
+    { icon: "💰", val: totalProfit + " د", lbl: "الأرباح", color: "#d4a017" },
+  ];
+  if (lateOrders.length) stats.push({ icon: "⚠️", val: lateOrders.length, lbl: "متأخرة!", color: "#ef4444" });
+
+  document.getElementById("statsBar").innerHTML = stats.map((s, i) => `
+    <div class="stat-card" style="border:1px solid ${s.color}22;animation-delay:${i*0.07}s">
+      <div style="font-size:17px">${s.icon}</div>
+      <div class="stat-val" style="color:${s.color}">${s.val}</div>
+      <div class="stat-lbl">${s.lbl}</div>
+    </div>`).join("");
+
+  if (currentTab === "home") renderHome(orders, completed, lateOrders, totalProfit, now);
+  else renderOrders(orders, now);
+}
+
+function renderHome(orders, completed, lateOrders, totalProfit, now) {
+  let html = "";
+
+  // Pointage
+  if (!todayData.pointage) {
+    html += `<div class="pointage-box pending">
+      <div style="font-size:36px;margin-bottom:10px">👋</div>
+      <div style="color:#22c55e;font-weight:700;font-size:16px;margin-bottom:6px">تسجيل الحضور</div>
+      <div style="color:#9ca3af;font-size:12px;margin-bottom:14px">سجّل حضورك لبدء يوم العمل</div>
+      <button class="btn-primary" style="width:auto;padding:10px 24px" onclick="doPointage()">🕐 تسجيل الحضور الآن</button>
+    </div>`;
+  } else {
+    html += `<div class="pointage-box done" style="margin-top:12px">
+      <span style="color:#4ade80;font-size:13px">✅ تم تسجيل الحضور</span>
+      <span style="color:#22c55e;font-weight:700">${fmtClock(todayData.pointage)}</span>
+    </div>`;
+  }
+
+  // Late alert
+  if (lateOrders.length > 0) {
+    html += `<div class="alert-box pulse">
+      <div class="alert-title">⚠️ تنبيه: طلبيات متأخرة!</div>
+      <div class="alert-text">لديك ${lateOrders.length} طلبية تجاوزت الحد الأقصى (${MAX_MIN} دقيقة)</div>
+    </div>`;
+  }
+
+  // Stats
+  html += `<div class="daily-stats">
+    <h3>📊 إحصائيات اليوم</h3>
+    ${[
+      ["إجمالي الطلبيات", orders.length, "#3b82f6"],
+      ["الطلبيات المكتملة", completed.length, "#22c55e"],
+      ["قيد التنفيذ", orders.length - completed.length, "#d4a017"],
+      ["إجمالي الأرباح", totalProfit + " درهم", "#16a34a"],
+    ].map(([l,v,c]) => `<div class="stat-row"><span class="stat-row-lbl">${l}</span><span class="stat-row-val" style="color:${c}">${v}</span></div>`).join("")}
+  </div>`;
+
+  html += `<button class="btn-primary" onclick="addOrder()">➕ إضافة طلبية جديدة</button>`;
+  document.getElementById("homeSection").innerHTML = html;
+}
+
+function renderOrders(orders, now) {
+  let html = `<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0 10px">
+    <h3 style="font-weight:700;font-size:15px;color:#d1fae5">طلبيات اليوم</h3>
+    <button onclick="addOrder()" style="background:#16a34a;border:none;border-radius:10px;color:#fff;padding:7px 14px;font-size:12px;font-weight:600">➕ جديدة</button>
+  </div>`;
+
+  if (orders.length === 0) {
+    html += `<div style="text-align:center;padding:60px 20px;color:#374151">
+      <div style="font-size:44px;margin-bottom:14px">📭</div>
+      <p>لا توجد طلبيات اليوم بعد</p>
+    </div>`;
+  } else {
+    [...orders].reverse().forEach(order => {
+      html += renderOrderCard(order, now);
+    });
+  }
+  document.getElementById("ordersSection").innerHTML = html;
+}
+
+function renderOrderCard(order, now) {
+  const isComplete = !!order.stages.delivered;
+  const elapsed = order.stages.accepted && !isComplete ? now - order.stages.accepted : 0;
+  const totalMs = isComplete && order.stages.accepted ? order.stages.delivered - order.stages.accepted : 0;
+  const elapsedMin = elapsed / 60000;
+  const isLate = !isComplete && elapsedMin > MAX_MIN;
+  const isWarn = !isComplete && elapsedMin > MAX_MIN * 0.8 && !isLate;
+  const cls = isLate ? "late" : isWarn ? "warning" : "normal";
+
+  const stageIdx = STAGES.reduce((acc, s, i) => order.stages[s.key] ? i : acc, -1);
+
+  let html = `<div class="order-card ${cls}">
+    <div class="order-header">
+      <div><span style="color:#9ca3af;font-size:12px">طلبية </span><span class="order-id">#${order.id}</span></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${isComplete ? '<span class="badge badge-complete">✅ مكتملة</span>' : ""}
+        ${isLate ? '<span class="badge badge-late pulse">⚠️ متأخرة!</span>' : ""}
+        ${isWarn && !isLate ? '<span class="badge badge-warn">⏰ تنبيه</span>' : ""}
+        <span class="order-profit">+${PROFIT} درهم</span>
+      </div>
+    </div>`;
+
+  if (elapsed && !isComplete) {
+    html += `<div class="timer-bar" style="${isLate ? 'background:rgba(239,68,68,0.08)' : ''}">
+      <span class="timer-lbl">الوقت منذ القبول:</span>
+      <span class="timer-val" style="color:${isLate ? '#f87171' : '#fff'}">${fmt(elapsed)}</span>
+    </div>`;
+  }
+
+  html += `<div class="stages">`;
+  STAGES.forEach((stage, idx) => {
+    const done = !!order.stages[stage.key];
+    const isNext = !done && idx === stageIdx + 1 && !isComplete;
+    const op = done || isNext ? 1 : 0.35;
+    html += `<div class="stage-item ${isNext ? 'clickable' : ''}"
+      style="background:${done ? stage.color+'18' : 'transparent'};border-color:${done ? stage.color : isNext ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)'};opacity:${op}"
+      ${isNext ? `onclick="doStage('${order.id}','${stage.key}')"` : ""}>
+      <div class="stage-icon">${stage.icon}</div>
+      <div class="stage-label" style="color:${done ? stage.color : isNext ? '#d1d5db' : '#4b5563'}">${stage.label}</div>
+      <div class="stage-time">${order.stages[stage.key] ? fmtClock(order.stages[stage.key]) : ''}</div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  if (isComplete && totalMs) {
+    html += `<div class="total-time">
+      <span class="total-time-lbl">إجمالي وقت التوصيل:</span>
+      <span class="total-time-val">${fmt(totalMs)}</span>
+    </div>`;
+  }
+
+  html += `</div>`;
+  return html;
+}
+
+// ── Re-render timer ───────────────────────────────────────────────────────
+setInterval(() => { if (currentUser) render(); }, 5000);
+
+// ── Init ──────────────────────────────────────────────────────────────────
+showScreen("loginScreen");
+</script>
+</body>
+</html>
